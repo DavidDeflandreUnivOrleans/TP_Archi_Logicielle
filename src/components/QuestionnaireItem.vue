@@ -1,7 +1,7 @@
 <script>
 export default {
   props: {
-    todo: Object
+    questionnaire: Object
   },
   methods: {
     suppr() {
@@ -16,7 +16,7 @@ export default {
     async fetchData() {
         this.todos = null
         const res = await fetch(
-            `https://jsonplaceholder.typicode.com/todos/`
+            `http://localhost:5000/quiz/api/v1.0/questionnaires`
         )
         this.todos = await res.json()
     },

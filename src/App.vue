@@ -1,10 +1,10 @@
 <script>
-import TodoItem from './components/TodoItem.vue';
+import TodoItem from './components/QuestionnaireItem.vue';
 
 let data = {
   questionnaires: [
-    { id: 1, name: 'Faire les courses', uri: 'http://localhost:5000/quiz/api/v1.0/questionnaires/1' },
-    { id: 2, name: 'Apprendre REST', uri : 'http://localhost:5000/quiz/api/v1.0/questionnaires/2' }
+    { id: 1, name: 'Faire les courses', uri: '' },
+    { id: 2, name: 'Apprendre REST', uri : '' }
   ],
   title: 'Mes questionnaires',
   newItem: ''
@@ -16,24 +16,39 @@ export default {
   },
   methods: {
     addItem: function () {
-      let text = this.newItem.trim();
-      if (text) {
-        this.questionnaires.push({
-          id: Date.now(),
-          text: text,
-          checked: false
-        });
+      let name = this.newItem.trim();
+      let questionnaire = {
+        id: this.questionnaires.length + 1,
+        name: name,
+        uri: 'http://localhost:5000/quiz/api/v1.0/questionnaires' + (this.questionnaires.length + 1)
+      }
+      const promise = this.saveQuestionnaire(questionnaire);
+      console.log(promise);
+      promise.then((resultat) => {
+        console.log(resultat);
+        this.questionnaires.push(questionnaire);
         this.newItem = '';
       }
+      );
+
     },
-    removeItem(todoId) {
-      this.questionnaires = this.questionnaires.filter(todo => todo.id !== todoId);
-    },
-    replaceItem({ id, text }) {
-      const todo = this.questionnaires.find(todo => todo.id === id);
-      if (todo) {
-        todo.text = text;
-      }
+    saveQuestionnaire: function (questionnaire) {
+      return fetch('http://localhost:5000/quiz/api/v1.0/questionnaires', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(questionnaire)
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          return data;
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
     }
 
   },
@@ -56,7 +71,7 @@ export default {
     <h2>{{ title }}</h2>
     
     <ol>
-      <li v-for="questionnaire in questionnaires" :class="{ 'alert alert-success': questionnaire.checked }" :key="questionnaire.id">
+      <li v-for="questionnaire in questionnaires"  :key="questionnaire.id">
         <div class="checkbox">
           <label>
              {{ questionnaire.name }}
@@ -74,7 +89,7 @@ export default {
       <input 
         v-model="newItem" 
         @keyup.enter="addItem" 
-        placeholder="Ajouter une tâche à la liste" 
+        placeholder="Ajouter un Questionnaire" 
         type="text" 
         class="form-control">
       
