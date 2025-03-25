@@ -2,11 +2,11 @@
 import TodoItem from './components/TodoItem.vue';
 
 let data = {
-  todos: [
-    { id: 1, text: 'Faire les courses', checked: true },
-    { id: 2, text: 'Apprendre REST', checked: false }
+  questionnaires: [
+    { id: 1, name: 'Faire les courses', uri: 'http://localhost:5000/quiz/api/v1.0/questionnaires/1' },
+    { id: 2, name: 'Apprendre REST', uri : 'http://localhost:5000/quiz/api/v1.0/questionnaires/2' }
   ],
-  title: 'Mes tâches',
+  title: 'Mes questionnaires',
   newItem: ''
 };
 
@@ -18,7 +18,7 @@ export default {
     addItem: function () {
       let text = this.newItem.trim();
       if (text) {
-        this.todos.push({
+        this.questionnaires.push({
           id: Date.now(),
           text: text,
           checked: false
@@ -27,14 +27,23 @@ export default {
       }
     },
     removeItem(todoId) {
-      this.todos = this.todos.filter(todo => todo.id !== todoId);
+      this.questionnaires = this.questionnaires.filter(todo => todo.id !== todoId);
     },
     replaceItem({ id, text }) {
-      const todo = this.todos.find(todo => todo.id === id);
+      const todo = this.questionnaires.find(todo => todo.id === id);
       if (todo) {
         todo.text = text;
       }
     }
+
+  },
+  mounted() {
+    fetch('http://localhost:5000/quiz/api/v1.0/questionnaires')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        this.questionnaires = data;
+      });
   },
   components: { TodoItem }
 }
@@ -47,12 +56,12 @@ export default {
     <h2>{{ title }}</h2>
     
     <ol>
-      <li v-for="todo in todos" :class="{ 'alert alert-success': todo.checked }" :key="todo.id">
+      <li v-for="questionnaire in questionnaires" :class="{ 'alert alert-success': questionnaire.checked }" :key="questionnaire.id">
         <div class="checkbox">
           <label>
-            <input type="checkbox" v-model="todo.checked"> {{ todo.text }}
+             {{ questionnaire.name }}
             <TodoItem
-              :todo="todo"
+              :todo="questionnaire"
               @remove="removeItem"
               @replace="replaceItem"
             ></TodoItem>
