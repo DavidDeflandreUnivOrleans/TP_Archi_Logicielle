@@ -1,5 +1,5 @@
 <script>
-import TodoItem from './components/QuestionnaireItem.vue';
+import QuestionnaireItem from './components/QuestionnaireItem.vue';
 
 let data = {
   questionnaires: [
@@ -49,7 +49,19 @@ export default {
         .catch((error) => {
           console.error('Error:', error);
         });
-    }
+    },
+    removeItem: function (id) {
+      return fetch("http://localhost:5000/quiz/api/v1.0/questionnaires/" + id, {
+        method: 'DELETE',
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          this.questionnaires = this.questionnaires.filter(todo => todo.id !== id);
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
 
   },
   mounted() {
@@ -60,8 +72,8 @@ export default {
         this.questionnaires = data;
       });
   },
-  components: { TodoItem }
-}
+  components: { QuestionnaireItem }
+}}
 </script>
 
 <template>
@@ -75,11 +87,11 @@ export default {
         <div class="checkbox">
           <label>
              {{ questionnaire.name }}
-            <TodoItem
+            <QuestionnaireItem
               :todo="questionnaire"
               @remove="removeItem"
               @replace="replaceItem"
-            ></TodoItem>
+            ></QuestionnaireItem>
           </label>
         </div>
       </li>

@@ -5,7 +5,7 @@ export default {
   },
   methods: {
     suppr() {
-      this.$emit('remove', this.todo.id);
+      this.$emit('remove', this.questionnaire.id);
     },
     changerContenu() {
       const newText = prompt("Entrez le nouveau texte :");
