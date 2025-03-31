@@ -42,11 +42,11 @@ export default {
       })
         .then(response => response.json())
         .then(data => {
-          console.log('Success:', data);
+          console.log('succès:', data);
           return data;
         })
         .catch((error) => {
-          console.error('Error:', error);
+          console.error('erreur:', error);
         });
     },
     replaceItem: function (item) {
@@ -71,11 +71,11 @@ export default {
       })
         .then(response => response.json())
         .then(data => {
-          console.log('Success:', data);
+          console.log('succès:', data);
           this.questionnaires = this.questionnaires.filter(todo => todo.id !== id);
         })
         .catch((error) => {
-          console.error('Error:', error);
+          console.error('erreur:', error);
         });
     },
     getQuestionsForQuestionnaire: function(questionnaireId) {
@@ -90,7 +90,7 @@ export default {
           return data;
         })
         .catch((error) => {
-          console.error('Error fetching questions:', error);
+          console.error('erreur dans le fetch:', error);
         });
     },
     addQuestionToQuestionnaire: function(questionnaireId, question) {
@@ -110,7 +110,7 @@ export default {
       })
         .then(response => response.json())
         .then(data => {
-          console.log('Question added:', data);
+          console.log('Question ajouter:', data);
           const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
           if (questionnaire) {
             questionnaire.questions.push(data);
@@ -118,7 +118,7 @@ export default {
           return data;
         })
         .catch((error) => {
-          console.error('Error adding question:', error);
+          console.error(`erreur dans l'ajout:`, error);
         });
     }
   },
@@ -147,14 +147,14 @@ export default {
       <li v-for="questionnaire in questionnaires" :key="questionnaire.id">
         <div class="checkbox">
           <label>
-             {{ questionnaire.name }} ({{ questionnaire.questions ? questionnaire.questions.length : 0 }} questions)
-            <QuestionnaireItem
-              :questionnaire="questionnaire"
-              @remove="removeItem"
-              @replace="replaceItem"
-              @add-question="addQuestionToQuestionnaire"
-            ></QuestionnaireItem>
+            {{ questionnaire.name }} ({{ questionnaire.questions ? questionnaire.questions.length : 0 }} questions)
           </label>
+          <QuestionnaireItem
+            :questionnaire="questionnaire"
+            @remove="removeItem"
+            @replace="replaceItem"
+            @add-question="addQuestionToQuestionnaire"
+          ></QuestionnaireItem>
         </div>
       </li>
     </ol>
