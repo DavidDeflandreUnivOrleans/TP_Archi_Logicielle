@@ -142,11 +142,58 @@ export default {
           const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
           if (questionnaire) {
             questionnaire.questions.push(data);
+            
           }
           return data;
         })
         .catch((error) => {
           console.error(`erreur dans l'ajout:`, error);
+        });
+    },
+    modifierQuestionToQuestionnaire : function(questionnaireId, question) {
+      const questionData = {
+        title: question.title,
+        questionType: question.questionType,
+        questionnaire_id: questionnaireId
+      };
+      
+      return fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(questionData)
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Question modifier:', data);
+          const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
+          if (questionnaire) {
+            questionnaire.questions.push(data);
+            
+          }
+          return data;
+        })
+        .catch((error) => {
+          console.error(`erreur dans la modif:`, error);
+        });
+    },
+    removeQuestionFromQuestionnaire: function(questionnaireId, questionId) {
+      return fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions/${questionId}`, {
+        method: 'DELETE',
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Question supprimer:', data);
+          const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
+          if (questionnaire) {
+            questionnaire.questions = questionnaire.questions.filter(q => q.id !== questionId);
+          }
+          return data;
+        })
+        .catch((error) => {
+          console.error('erreur dans la suppression de la question:', error);
         });
     }
   },
@@ -170,10 +217,9 @@ export default {
   
   <div class="container">
     <h2>{{ title }}</h2>
-    
     <ol>
       <li v-for="questionnaire in questionnaires" :key="questionnaire.id">
-        <div class="checkbox">
+        <div>
           <label>
             {{ questionnaire.name }} ({{ questionnaire.questions ? questionnaire.questions.length : 0 }} questions)
           </label>
@@ -187,9 +233,10 @@ export default {
               @replace="replaceItem"
             />
             <QuestionnaireItem
-            :questionnaire="questionnaire"
-            @add-question="addQuestionToQuestionnaire"
-            />
+            @remove-question="removeQuestionFromQuestionnaire"
+            @replace-question="modifierQuestionToQuestionnaire"
+            @get-questions="getQuestionsForQuestionnaire"
+          ></QuestionnaireItem>
           </div>
         </div>
       </li>
