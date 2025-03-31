@@ -138,15 +138,15 @@ export default {
       })
         .then(response => response.json())
         .then(data => {
-          console.log('Question ajouter:', data);
+          
           const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
           if (questionnaire) {
-            questionnaire.questions.push(data);
+            this.getQuestionsForQuestionnaire(questionnaireId);
           }
           return data;
         })
         .catch((error) => {
-          console.error(`erreur dans l'ajout:`, error);
+          console.error(`Erreur dans l'ajout:`, error);
         });
     }
   },
