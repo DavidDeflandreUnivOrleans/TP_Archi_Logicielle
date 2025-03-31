@@ -1,5 +1,6 @@
 <script>
 export default {
+  emits: ['add-question'],
   props: {
     questionnaire: Object
   },
@@ -11,15 +12,6 @@ export default {
     }
   },
   methods: {
-    suppr() {
-      this.$emit('remove', this.questionnaire.id);
-    },
-    changerContenu() {
-      let newText = prompt("Entrez le nouveau nom du questionnaire:", this.questionnaire.name);
-      if (newText && newText.trim()) {
-        this.$emit('replace', { id: this.questionnaire.id, name: newText });
-      }
-    },
     afficherQuestions() {
       this.showQuestions = !this.showQuestions;
     },
@@ -85,8 +77,9 @@ export default {
         <h6>Ajouter une question:</h6>
         <div class="input-group mb-3">
           <input 
-            v-model="newQuestionTitle" 
+            v-model="newQuestionTitle"
             @keyup.enter="addQuestion(newQuestionType)" 
+
             placeholder="Titre de la question" 
             type="text" 
             class="form-control">
@@ -99,5 +92,4 @@ export default {
         </div>
       </div>
     </div>
-  </div>
 </template>
