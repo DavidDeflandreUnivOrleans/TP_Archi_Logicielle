@@ -1,8 +1,6 @@
 <script>
 export default {
-  props: {
-    questionnaire: Object
-  },
+  emits: ['remove','replace','add-question'],
   data() {
     return {
       showQuestions: false,

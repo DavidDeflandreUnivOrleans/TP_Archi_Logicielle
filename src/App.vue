@@ -1,5 +1,6 @@
 <script>
 import QuestionnaireItem from './components/QuestionnaireItem.vue';
+import AddQuestionnaire from './components/AddQuestionnaire.vue';
 
 let data = {
   questionnaires: [
@@ -15,8 +16,10 @@ export default {
     return data;
   },
   methods: {
-    addItem: function () {
-      let name = this.newItem.trim();
+    addItem: function (nameQuestionnaire) {
+      console.log('test');
+      let name = nameQuestionnaire;
+      console.log(name);
       let questionnaire = {
         id: this.questionnaires.length + 1,
         name: name,
@@ -133,7 +136,7 @@ export default {
         });
       });
   },
-  components: { QuestionnaireItem }
+  components: { QuestionnaireItem, AddQuestionnaire }
 }
 </script>
 
@@ -159,15 +162,8 @@ export default {
       </li>
     </ol>
     
-    <div class="input-group mb-3">
-      <input 
-        v-model="newItem" 
-        @keyup.enter="addItem" 
-        placeholder="Ajouter un Questionnaire" 
-        type="text" 
-        class="form-control">
-      
-      <button @click="addItem" class="btn btn-primary" type="button">Ajouter</button>
-    </div>
+    <AddQuestionnaire
+      @add-item='addItem'
+    />
   </div>
 </template>
