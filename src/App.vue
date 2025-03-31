@@ -52,27 +52,20 @@ export default {
           console.error('erreur:', error);
         });
     },
-    replaceItem: function (item) {
-      let name = item.name;
-      let questionnaire = {
-        id: item.id,
-        name: name,
-        uri: 'http://localhost:5000/quiz/api/v1.0/questionnaires/' + item.id,
-        questions: item.questions
+    replaceItem: function (updatedItem) {
+      let updatedQuestionnaire = {
+        id: updatedItem.id,
+        name: updatedItem.name,
+        uri: 'http://localhost:5000/quiz/api/v1.0/questionnaires/' + updatedItem.id,
+        questions: this.questionnaires.find(q => q.id === updatedItem.id).questions
       }
 
-      const promise = this.updateQuestionnaire(questionnaire);
-      console.log(promise);
-
+      const promise = this.updateQuestionnaire(updatedQuestionnaire);
       promise.then((resultat) => {
-        console.log(resultat);
-        
-        const index = this.questionnaires.findIndex(q => q.id === item.id);
+        const index = this.questionnaires.findIndex(q => q.id === updatedItem.id);
         if (index !== -1) {
-          this.questionnaires.splice(index, 1, questionnaire);
+          this.questionnaires.splice(index, 1, updatedQuestionnaire);
         }
-
-        this.newItem = '';
       });
     },
     updateQuestionnaire: function (questionnaire) {
@@ -86,13 +79,13 @@ export default {
       })
         .then(response => response.json())
         .then(data => {
-          console.log('Questionnaire mis à jour avec succès:', data);
+          console.log('Questionnaire mis à jour:', data);
           return data;
         })
         .catch((error) => {
           console.error('Erreur lors de la mise à jour:', error);
         });
-    },
+      },
     removeItem: function (id) {
       return fetch("http://localhost:5000/quiz/api/v1.0/questionnaires/" + id, {
         method: 'DELETE',
@@ -166,37 +159,27 @@ export default {
 </script>
 
 <template>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
   <div class="container">
     <h2>{{ title }}</h2>
     
     <ol>
       <li v-for="questionnaire in questionnaires" :key="questionnaire.id">
         <div class="checkbox">
-          <label>
+          <label class="checkbox-label">
             {{ questionnaire.name }} ({{ questionnaire.questions ? questionnaire.questions.length : 0 }} questions)
           </label>
-          <div class="mt-3">
-            <SupprimerQuestionnaire
-              :questionnaireId="questionnaire.id"
-              @remove="removeItem"
-            />
-            <ReplaceNameQuestionnaire
-              :questionnaire="questionnaire" 
-              @replace="replaceItem"
-            />
-            <QuestionnaireItem
-            :questionnaire="questionnaire"
-            @add-question="addQuestionToQuestionnaire"
-            />
+          
+          <!-- Les éléments suivants seront affichés en ligne -->
+          <div class="checkbox-actions">
+            <SupprimerQuestionnaire :questionnaireId="questionnaire.id" @remove="removeItem" />
+            <ReplaceNameQuestionnaire :questionnaire="questionnaire" @replace="replaceItem" />
+            <QuestionnaireItem :questionnaire="questionnaire" />
           </div>
         </div>
       </li>
     </ol>
     
-    <AddQuestionnaire
-      @add-item='addItem'
-    />
+    <AddQuestionnaire @add-item='addItem' />
   </div>
 </template>
