@@ -1,6 +1,8 @@
 <script>
 import QuestionnaireItem from './components/QuestionnaireItem.vue';
 import AddQuestionnaire from './components/AddQuestionnaire.vue';
+import SupprimerQuestionnaire from './components/SupprimerQuestionnaire.vue';
+import ReplaceNameQuestionnaire from './components/ReplaceNameQuestionnaire.vue';
 
 let data = {
   questionnaires: [
@@ -17,9 +19,7 @@ export default {
   },
   methods: {
     addItem: function (nameQuestionnaire) {
-      console.log('test');
       let name = nameQuestionnaire;
-      console.log(name);
       let questionnaire = {
         id: this.questionnaires.length + 1,
         name: name,
@@ -53,20 +53,45 @@ export default {
         });
     },
     replaceItem: function (item) {
-      let name = item.name.trim();
+      let name = item.name;
       let questionnaire = {
         id: item.id,
         name: name,
-        uri: 'http://localhost:5000/quiz/api/v1.0/questionnaires' + item.id,
+        uri: 'http://localhost:5000/quiz/api/v1.0/questionnaires/' + item.id,
         questions: item.questions
       }
-      const promise = this.saveQuestionnaire(questionnaire);
+
+      const promise = this.updateQuestionnaire(questionnaire);
       console.log(promise);
+
       promise.then((resultat) => {
         console.log(resultat);
-        this.questionnaires.splice(this.questionnaires.indexOf(item), 1, questionnaire);
+        
+        const index = this.questionnaires.findIndex(q => q.id === item.id);
+        if (index !== -1) {
+          this.questionnaires.splice(index, 1, questionnaire);
+        }
+
         this.newItem = '';
       });
+    },
+    updateQuestionnaire: function (questionnaire) {
+      return fetch('http://localhost:5000/quiz/api/v1.0/questionnaires/' + questionnaire.id, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(questionnaire)
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Questionnaire mis à jour avec succès:', data);
+          return data;
+        })
+        .catch((error) => {
+          console.error('Erreur lors de la mise à jour:', error);
+        });
     },
     removeItem: function (id) {
       return fetch("http://localhost:5000/quiz/api/v1.0/questionnaires/" + id, {
@@ -136,7 +161,7 @@ export default {
         });
       });
   },
-  components: { QuestionnaireItem, AddQuestionnaire }
+  components: {QuestionnaireItem, AddQuestionnaire, SupprimerQuestionnaire, ReplaceNameQuestionnaire}
 }
 </script>
 
@@ -152,12 +177,20 @@ export default {
           <label>
             {{ questionnaire.name }} ({{ questionnaire.questions ? questionnaire.questions.length : 0 }} questions)
           </label>
-          <QuestionnaireItem
+          <div class="mt-3">
+            <SupprimerQuestionnaire
+              :questionnaireId="questionnaire.id"
+              @remove="removeItem"
+            />
+            <ReplaceNameQuestionnaire
+              :questionnaire="questionnaire" 
+              @replace="replaceItem"
+            />
+            <QuestionnaireItem
             :questionnaire="questionnaire"
-            @remove="removeItem"
-            @replace="replaceItem"
             @add-question="addQuestionToQuestionnaire"
-          ></QuestionnaireItem>
+            />
+          </div>
         </div>
       </li>
     </ol>

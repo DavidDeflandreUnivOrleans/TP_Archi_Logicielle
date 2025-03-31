@@ -1,9 +1,6 @@
 <script>
 export default {
   emits: ['add-item'],
-  props: {
-    questionnaire: Object
-  },
   data() {
     return {
       newItem: ''
@@ -25,7 +22,7 @@ export default {
     <input 
       v-model="newItem" 
       @keyup.enter="addItem" 
-      placeholder="Ajouter un Questionnaire" 
+      placeholder="Ajouter un Questionnaire"
       type="text"
       class="form-control">
     
