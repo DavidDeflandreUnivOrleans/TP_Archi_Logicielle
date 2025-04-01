@@ -1,6 +1,10 @@
 <script>
+import AjouterQuestion from './AjouterQuestion.vue';
+import ReplaceNameQuestion from './ReplaceNameQuestion.vue';
+import SupprimerQuestion from './SupprimerQuestion.vue';
+
 export default {
-  emits: ['add-question'],
+  emits: ['add-question', 'edit-question', 'remove-question'],
   props: {
     questionnaire: Object
   },
@@ -15,17 +19,18 @@ export default {
     afficherQuestions() {
       this.showQuestions = !this.showQuestions;
     },
-    addQuestion() {
-      if (this.newQuestionTitle.trim()) {
-        const newQuestion = {
-          title: this.newQuestionTitle,
-          questionType: this.newQuestionType,
-          questionnaire_id: this.questionnaire.id
-        };
-        this.$emit('add-question', this.questionnaire.id, newQuestion);
-        this.newQuestionTitle = '';
-      }
+    addQuestion(question) {
+      this.$emit('add-question', this.questionnaire.id, question); // Ajoute l'ID du questionnaire
+    },
+    replaceItem(updatedQuestion) {
+      this.$emit('edit-question', this.questionnaire.id, updatedQuestion); // Transmet l'ID du questionnaire et la question mise à jour
+    },
+    removeQuestion(questionId) {
+      this.$emit('remove-question', this.questionnaire.id, questionId); // Inclut l'ID du questionnaire
     }
+  },
+  components: {
+    AjouterQuestion, ReplaceNameQuestion, SupprimerQuestion
   }
 }
 </script>
@@ -44,27 +49,12 @@ export default {
         </li>
         <li v-for="question in questionnaire.questions" :key="question.id" class="list-group-item">
           <strong>{{ question.title }}</strong> (Type: {{ question.questionType }})
+          <div class="checkbox-actions">
+            <ReplaceNameQuestion :question="question" @replace="replaceItem" />
+            <SupprimerQuestion :question="question" @remove-question="removeQuestion"/>
+          </div>
         </li>
       </ul>
-      
-      <div class="mt-3">
-        <h6>Ajouter une question:</h6>
-        <div class="input-group mb-3">
-          <input 
-            v-model="newQuestionTitle" 
-            @keyup.enter="addQuestion"
-            placeholder="Titre de la question" 
-            type="text" 
-            class="form-control">
-          
-          <select v-model="newQuestionType" class="form-select">
-            <option value="text">Texte</option>
-            <option value="choice">Choix multiple</option>
-            <option value="boolean">Oui/Non</option>
-          </select>
-          
-          <button @click="addQuestion" class="btn btn-success" type="button">Ajouter</button>
-        </div>
-      </div>
+      <AjouterQuestion :questionnaire="questionnaire" @add-question="addQuestion"/>
     </div>
 </template>

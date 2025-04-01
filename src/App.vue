@@ -131,15 +131,63 @@ export default {
       })
         .then(response => response.json())
         .then(data => {
-          
           const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
           if (questionnaire) {
+            questionnaire.questions.push(data);
             this.getQuestionsForQuestionnaire(questionnaireId);
           }
           return data;
         })
         .catch((error) => {
           console.error(`Erreur dans l'ajout:`, error);
+        });
+    },
+    removeQuestionFromQuestionnaire: function(questionnaireId, questionId) {
+      return fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions/${questionId}`, {
+        method: 'DELETE',
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Erreur lors de la suppression');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Question supprimée:', data);
+          const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
+          if (questionnaire) {
+            questionnaire.questions = questionnaire.questions.filter(q => q.id !== questionId);
+            this.getQuestionsForQuestionnaire(questionnaireId);
+          }
+        })
+        .catch((error) => {
+          console.error('Erreur:', error);
+        });
+    },
+    editQuestionInQuestionnaire: function(questionnaireId, updatedQuestion) {
+        return fetch(`http://localhost:5000/quiz/api/v1.0/questionnaires/${questionnaireId}/questions/${updatedQuestion.id}`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedQuestion)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Question mise à jour:', data);
+            const questionnaire = this.questionnaires.find(q => q.id === questionnaireId);
+            if (questionnaire) {
+                const questionIndex = questionnaire.questions.findIndex(q => q.id === updatedQuestion.id);
+                if (questionIndex !== -1) {
+                    questionnaire.questions.splice(questionIndex, 1, data);
+                    this.getQuestionsForQuestionnaire(questionnaireId);
+                }
+            }
+            return data;
+        })
+        .catch((error) => {
+            console.error('Erreur lors de la mise à jour:', error);
         });
     }
   },
@@ -170,11 +218,14 @@ export default {
             {{ questionnaire.name }} ({{ questionnaire.questions ? questionnaire.questions.length : 0 }} questions)
           </label>
           
-          <!-- Les éléments suivants seront affichés en ligne -->
           <div class="checkbox-actions">
             <SupprimerQuestionnaire :questionnaireId="questionnaire.id" @remove="removeItem" />
             <ReplaceNameQuestionnaire :questionnaire="questionnaire" @replace="replaceItem" />
-            <QuestionnaireItem :questionnaire="questionnaire" />
+            <QuestionnaireItem 
+              :questionnaire="questionnaire" 
+              @add-question="addQuestionToQuestionnaire" 
+              @edit-question="editQuestionInQuestionnaire" 
+              @remove-question="removeQuestionFromQuestionnaire" />
           </div>
         </div>
       </li>
